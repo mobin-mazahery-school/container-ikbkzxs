@@ -3,14 +3,14 @@ FROM alpine:latest AS fetcher
 RUN apk add --no-cache curl tar wget
 
 # Download official compiled GOST v3 binary directly
-RUN wget https://github.com && \
-    gunzip gost-linux-amd64-v2.11.5.gz && \
-    mv gost-linux-amd64-v2.11.5 /usr/local/bin/gost && \
+RUN wget https://github.com/go-gost/gost/releases/download/v3.2.6/gost_3.2.6_linux_amd64.tar.gz && \
+    gunzip gost_3.2.6_linux_amd64.tar.gz && \
+    mv gost /usr/local/bin/gost && \
     chmod +x /usr/local/bin/gost
 
 # Download official compiled GoTTY binary directly
-RUN wget https://github.com && \
-    tar -xzf gotty_linux_amd64.tar.gz && \
+RUN wget https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz && \
+    tar -xf gotty_linux_amd64.tar.gz && \
     mv gotty /usr/local/bin/gotty && \
     chmod +x /usr/local/bin/gotty
 
@@ -25,12 +25,12 @@ ENV NODE_ENV=production
 # Fixed: Node.js and Caddy setup scripts are optimized to use modern, certified Ubuntu 24.04 repository standards
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg git build-essential python3 python3-pip python3-venv \
-    supervisor nginx sqlite3 libcap2-bin wget unzip rsync \
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://nodesource.com | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://nodesource.com nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && curl -fsSL https://cloudsmith.io | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://cloudsmith.io any main" | tee /etc/apt/sources.list.d/caddy-stable.list \
+    supervisor nginx sqlite3 libcap2-bin wget unzip rsync debian-keyring debian-archive-keyring apt-transport-https \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list \
+    && sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+    && sudo chmod o+r /etc/apt/sources.list.d/caddy-stable.list && \
+    && curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - \
     && apt-get update \
     && apt-get install -y nodejs caddy \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -39,21 +39,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip3 install --no-cache-dir --break-system-packages "huggingface_hub[cli]"
 
 # Install code-server (VSCode Web Engine)
-RUN curl -fsSL https://code-server.dev | sh
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Deploy clean binaries extracted securely from Stage 1
 COPY --from=fetcher /usr/local/bin/gost /usr/local/bin/gost
 COPY --from=fetcher /usr/local/bin/gotty /usr/local/bin/gotty
 COPY --from=cloudflare/cloudflared:latest /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 
+# <fixme> 
 # Download & Setup Nginx Proxy Manager Frontend/Backend Frameworks
-WORKDIR /app
-RUN curl -L https://github.com -o npm.tar.gz \
-    && tar -xzf npm.tar.gz --strip-components=1 && rm npm.tar.gz \
-    && cd /app/backend && npm ci --prod \
-    && mkdir -p /tmp/nginx /var/log/nginx /var/lib/nginx /var/cache/nginx /data /etc/nginx/logs \
-    && cp -r /app/global /etc/nginx/ \
-    && ln -sf /app/backend /app/dist
+# WORKDIR /app
+# RUN curl -L https://github.com -o npm.tar.gz \
+#     && tar -xzf npm.tar.gz --strip-components=1 && rm npm.tar.gz \
+#     && cd /app/backend && npm ci --prod \
+#     && mkdir -p /tmp/nginx /var/log/nginx /var/lib/nginx /var/cache/nginx /data /etc/nginx/logs \
+#     && cp -r /app/global /etc/nginx/ \
+#     && ln -sf /app/backend /app/dist
+# </fixme>
 
 # Build the custom landing dashboard workspace folder
 RUN mkdir -p /var/www/dashboard
