@@ -4,7 +4,7 @@ RUN apk add --no-cache curl tar wget
 
 # Download official compiled GOST v3 binary directly
 RUN wget https://github.com/go-gost/gost/releases/download/v3.2.6/gost_3.2.6_linux_amd64.tar.gz && \
-    gunzip gost_3.2.6_linux_amd64.tar.gz && \
+    tar -xf gost_3.2.6_linux_amd64.tar.gz && \
     ls && \
     mv gost /usr/local/bin/gost && \
     chmod +x /usr/local/bin/gost
