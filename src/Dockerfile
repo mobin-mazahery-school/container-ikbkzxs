@@ -5,12 +5,14 @@ RUN apk add --no-cache curl tar wget
 # Download official compiled GOST v3 binary directly
 RUN wget https://github.com/go-gost/gost/releases/download/v3.2.6/gost_3.2.6_linux_amd64.tar.gz && \
     gunzip gost_3.2.6_linux_amd64.tar.gz && \
+    ls && \
     mv gost /usr/local/bin/gost && \
     chmod +x /usr/local/bin/gost
 
 # Download official compiled GoTTY binary directly
 RUN wget https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz && \
     tar -xf gotty_linux_amd64.tar.gz && \
+    ls && \
     mv gotty /usr/local/bin/gotty && \
     chmod +x /usr/local/bin/gotty
 
@@ -26,14 +28,14 @@ ENV NODE_ENV=production
 RUN apt update && apt install -y --no-install-recommends \
     curl ca-certificates gnupg git build-essential python3 python3-pip python3-venv \
     supervisor nginx sqlite3 libcap2-bin wget unzip rsync debian-keyring debian-archive-keyring apt-transport-https \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list \
-    && sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
-    && sudo chmod o+r /etc/apt/sources.list.d/caddy-stable.list && \
-    && curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - \
-    && apt update \
-    && apt install -y nodejs caddy \
-    && apt clean && rm -rf /var/lib/apt/lists/*
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list \
+RUN sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+RUN sudo chmod o+r /etc/apt/sources.list.d/caddy-stable.list && \
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - \
+RUN apt update \
+RUN apt install -y nodejs caddy \
+RUN apt clean && rm -rf /var/lib/apt/lists/*
 
 # Install Hugging Face Hub CLI
 RUN pip3 install --no-cache-dir --break-system-packages "huggingface_hub[cli]"
