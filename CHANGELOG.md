@@ -1,3 +1,16 @@
+# v0.0.4 (Mon Jun 29 2026)
+
+#### ⚠️ Pushed to `main`
+
+- Update deploy.yml ([@mobin-mazahery-school](https://github.com/mobin-mazahery-school))
+- dockerfile ([@mobin-mazahery-school](https://github.com/mobin-mazahery-school))
+
+#### Authors: 1
+
+- mobin mazahery ([@mobin-mazahery-school](https://github.com/mobin-mazahery-school))
+
+---
+
 # v0.0.3 (Mon Jun 29 2026)
 
 #### ⚠️ Pushed to `main`
