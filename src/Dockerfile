@@ -69,7 +69,4 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY backup-sync.sh /usr/local/bin/backup-sync.sh
 RUN chmod +x /usr/local/bin/backup-sync.sh
 
-# Open Port 5000 for standard platform routing
-EXPOSE 5000
-
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
