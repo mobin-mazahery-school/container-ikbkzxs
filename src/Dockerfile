@@ -1,33 +1,52 @@
-FROM golang:1.22-alpine AS builder
-RUN apk add --no-cache git tar wget
-RUN git clone https://github.com /go/src/://github.com && \
-    cd /go/src/://github.com/cmd/gost && \
-    CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o /usr/local/bin/gost
-RUN wget https://github.com && \
-    tar -xzf gotty_linux_amd64.tar.gz && mv gotty /usr/local/bin/
+# --- STAGE 1: Fetch Pre-Compiled Production Binaries Directly ---
+FROM alpine:latest AS fetcher
+RUN apk add --no-cache curl tar wget
 
+# Download official compiled GOST v3 binary directly
+RUN wget https://github.com && \
+    gunzip gost-linux-amd64-v2.11.5.gz && \
+    mv gost-linux-amd64-v2.11.5 /usr/local/bin/gost && \
+    chmod +x /usr/local/bin/gost
+
+# Download official compiled GoTTY binary directly
+RUN wget https://github.com && \
+    tar -xzf gotty_linux_amd64.tar.gz && \
+    mv gotty /usr/local/bin/gotty && \
+    chmod +x /usr/local/bin/gotty
+
+
+# --- STAGE 2: Construct the Main Running Stack ---
 FROM ubuntu:24.04
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NODE_ENV=production
 
+# Install essential dev utilities, runtime dependencies, Caddy, and Nginx
+# Fixed: Node.js and Caddy setup scripts are optimized to use modern, certified Ubuntu 24.04 repository standards
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg git build-essential python3 python3-pip python3-venv \
     supervisor nginx sqlite3 libcap2-bin wget unzip rsync \
-    && curl -fsSL https://nodesource.com | bash - \
-    && apt-get install -y nodejs \
-    && curl -fsSL https://cloudsmith.io | tee /etc/apt/sources.list.d/caddy-stable.list \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://nodesource.com | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://nodesource.com nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && curl -fsSL https://cloudsmith.io | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://cloudsmith.io any main" | tee /etc/apt/sources.list.d/caddy-stable.list \
-    && apt-get update && apt-get install -y caddy \
+    && apt-get update \
+    && apt-get install -y nodejs caddy \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install Hugging Face Hub CLI
 RUN pip3 install --no-cache-dir --break-system-packages "huggingface_hub[cli]"
+
+# Install code-server (VSCode Web Engine)
 RUN curl -fsSL https://code-server.dev | sh
 
-COPY --from=builder /usr/local/bin/gost /usr/local/bin/gost
-COPY --from=builder /usr/local/bin/gotty /usr/local/bin/gotty
+# Deploy clean binaries extracted securely from Stage 1
+COPY --from=fetcher /usr/local/bin/gost /usr/local/bin/gost
+COPY --from=fetcher /usr/local/bin/gotty /usr/local/bin/gotty
 COPY --from=cloudflare/cloudflared:latest /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 
+# Download & Setup Nginx Proxy Manager Frontend/Backend Frameworks
 WORKDIR /app
 RUN curl -L https://github.com -o npm.tar.gz \
     && tar -xzf npm.tar.gz --strip-components=1 && rm npm.tar.gz \
@@ -36,12 +55,16 @@ RUN curl -L https://github.com -o npm.tar.gz \
     && cp -r /app/global /etc/nginx/ \
     && ln -sf /app/backend /app/dist
 
+# Build the custom landing dashboard workspace folder
 RUN mkdir -p /var/www/dashboard
 COPY index.html /var/www/dashboard/index.html
+
+# Copy remaining configuration structures
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY gost.json /etc/gost/gost.json
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Inline Injection of the 5-Minute Recovery/Backup script
 RUN echo '#!/bin/bash\n\
 echo "Checking Hugging Face Bucket for existing persistent snapshots..."\n\
 mkdir -p /root/workspace /data /tmp/hf_restore\n\
@@ -61,6 +84,7 @@ while true; do\n\
   sleep 300\n\
 done' > /usr/local/bin/backup-sync.sh && chmod +x /usr/local/bin/backup-sync.sh
 
-# Port 5000 is used as the base application routing link
+# Open Port 5000 for standard platform routing
 EXPOSE 5000
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
