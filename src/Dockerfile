@@ -66,25 +66,8 @@ COPY Caddyfile /etc/caddy/Caddyfile
 COPY gost.json /etc/gost/gost.json
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Inline Injection of the 5-Minute Recovery/Backup script
-RUN echo '#!/bin/bash\n\
-echo "Checking Hugging Face Bucket for existing persistent snapshots..."\n\
-mkdir -p /root/workspace /data /tmp/hf_restore\n\
-huggingface-cli buckets sync hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ /tmp/hf_restore/\n\
-if [ -f "/tmp/hf_restore/workspace_snapshot.tar.gz" ]; then\n\
-    tar -xzf /tmp/hf_restore/workspace_snapshot.tar.gz -C /\n\
-fi\n\
-if [ -f "/tmp/hf_restore/npm_snapshot.tar.gz" ]; then\n\
-    tar -xzf /tmp/hf_restore/npm_snapshot.tar.gz -C /\n\
-fi\n\
-rm -rf /tmp/hf_restore\n\
-mkdir -p /tmp/hf_staging\n\
-while true; do\n\
-  tar -czf /tmp/hf_staging/workspace_snapshot.tar.gz -C / root/workspace\n\
-  tar -czf /tmp/hf_staging/npm_snapshot.tar.gz -C / data\n\
-  huggingface-cli buckets sync /tmp/hf_staging/ hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ --delete\n\
-  sleep 300\n\
-done' > /usr/local/bin/backup-sync.sh && chmod +x /usr/local/bin/backup-sync.sh
+COPY backup-sync.sh /usr/local/bin/backup-sync.sh
+RUN chmod +x /usr/local/bin/backup-sync.sh
 
 # Open Port 5000 for standard platform routing
 EXPOSE 5000
