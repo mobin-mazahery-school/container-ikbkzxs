@@ -1,3 +1,15 @@
+# v0.0.8 (Mon Jun 29 2026)
+
+#### ⚠️ Pushed to `main`
+
+- v3 ([@mobin-mazahery-school](https://github.com/mobin-mazahery-school))
+
+#### Authors: 1
+
+- mobin mazahery ([@mobin-mazahery-school](https://github.com/mobin-mazahery-school))
+
+---
+
 # v0.0.7 (Mon Jun 29 2026)
 
 #### ⚠️ Pushed to `main`
