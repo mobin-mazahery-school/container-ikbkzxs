@@ -23,7 +23,7 @@ ENV NODE_ENV=production
 
 # Install essential dev utilities, runtime dependencies, Caddy, and Nginx
 # Fixed: Node.js and Caddy setup scripts are optimized to use modern, certified Ubuntu 24.04 repository standards
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
     curl ca-certificates gnupg git build-essential python3 python3-pip python3-venv \
     supervisor nginx sqlite3 libcap2-bin wget unzip rsync debian-keyring debian-archive-keyring apt-transport-https \
     && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
@@ -31,9 +31,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
     && sudo chmod o+r /etc/apt/sources.list.d/caddy-stable.list && \
     && curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - \
-    && apt-get update \
-    && apt-get install -y nodejs caddy \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt update \
+    && apt install -y nodejs caddy \
+    && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Install Hugging Face Hub CLI
 RUN pip3 install --no-cache-dir --break-system-packages "huggingface_hub[cli]"
