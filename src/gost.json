@@ -1,0 +1,17 @@
+{
+    "Debug": true,
+    "Services": [
+        {
+            "ID": "stealth-vpn",
+            "Addr": "127.0.0.1:8080",
+            "Handler": {
+                "Type": "auto",
+                "Auths": ["$VPN_USER:$VPN_PASSWORD"]
+            },
+            "Listener": {
+                "Type": "mws",
+                "Path": "/vpn"
+            }
+        }
+    ]
+}

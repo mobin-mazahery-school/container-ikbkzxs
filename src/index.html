@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Workspace</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        h1 { color: #38bdf8; margin-bottom: 2rem; font-size: 2.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; max-width: 900px; width: 90%; }
+        .card { background: #1e293b; padding: 1.5rem; border-radius: 12px; border: 1px solid #334155; text-decoration: none; color: inherit; transition: all 0.2s ease; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2); }
+        .card h3 { color: #f1f5f9; margin: 0 0 0.5rem 0; font-size: 1.3rem; }
+        .card p { color: #94a3b8; margin: 0; font-size: 0.95rem; line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <h1>Workspace Core</h1>
+    <div class="grid">
+        <a href="/code/" target="_blank" class="card">
+            <h3>VS Code Workspace</h3>
+            <p>Access your full cloud integrated environment via code-server directly inside your web browser.</p>
+        </a>
+        <a href="/terminal/" target="_blank" class="card">
+            <h3>Ubuntu Web Terminal</h3>
+            <p>Execute low-overhead administrative controls natively on the kernel via GoTTY terminal routing.</p>
+        </a>
+        <a href="/npm/" target="_blank" class="card">
+            <h3>Nginx Proxy Manager</h3>
+            <p>Configure internal routing patterns, map web endpoints, and orchestrate reverse-proxy tasks.</p>
+        </a>
+    </div>
+</body>
+</html>

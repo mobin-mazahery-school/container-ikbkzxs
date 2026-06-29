@@ -1,0 +1,17 @@
+:5000 {
+    reverse_proxy /vpn* localhost:8080
+
+    basic_auth {
+        {$CADDY_AUTH_USER} "{$CADDY_AUTH_HASH}"
+    }
+
+    reverse_proxy /code* localhost:8000
+    reverse_proxy /terminal* localhost:8085
+    
+    reverse_proxy /npm* localhost:81 {
+        header_up Host {http.reverse_proxy.upstream.hostport}
+    }
+
+    root * /var/www/dashboard
+    file_server
+}
