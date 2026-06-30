@@ -5,7 +5,7 @@ mkdir -p /data
 mkdir -p /tmp/hf_restore
 
 # 1. Pull down data if it exists
-huggingface-cli buckets sync hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ /tmp/hf_restore/
+hf buckets sync hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ /tmp/hf_restore/
 
 if [ -f "/tmp/hf_restore/workspace_snapshot.tar.gz" ]; then
     echo "Restoring workspace filesystem..."
@@ -28,7 +28,7 @@ while true; do
   tar -czf /tmp/hf_staging/npm_snapshot.tar.gz -C / data
   
   echo "Pushing updates to Hugging Face..."
-  huggingface-cli buckets sync /tmp/hf_staging/ hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ --delete
+  hf buckets sync /tmp/hf_staging/ hf://buckets/$HF_USERNAME/$HF_BUCKET/dev_machine_backup/ --delete
   
   sleep 300
 done
